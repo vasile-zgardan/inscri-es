@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moldova Europeia – Gestão de Inscrições</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b2333;--mut:#5d6679;--line:#e2e6ef;--acc:#0b4fa8;--head:#eaf1fb;--ok:#1d8a3e;--okbg:#e3f6e8;--no:#c0392b;--nobg:#fdeaea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--card:#18202e;--tx:#e8ecf4;--mut:#9aa5ba;--line:#2a3549;--acc:#7db1ff;--head:#1f2b40;--ok:#58c27a;--okbg:#17331f;--no:#ef7b6e;--nobg:#3a1c1c}}
+:root[data-theme="dark"]{--bg:#10151f;--card:#18202e;--tx:#e8ecf4;--mut:#9aa5ba;--line:#2a3549;--acc:#7db1ff;--head:#1f2b40;--ok:#58c27a;--okbg:#17331f;--no:#ef7b6e;--nobg:#3a1c1c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1050px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.st{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.st b{display:block;font-size:1.5rem}
+.st span{color:var(--mut);font-size:.82rem}
+.st.c b{color:var(--ok)}.st.n b{color:var(--no)}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab,.bar select,.bar input{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:8px;padding:9px 14px}
+.tab{cursor:pointer}.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.bar input{flex:1;min-width:200px}
+#msg{display:none;background:var(--nobg);color:var(--no);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:.88rem}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:22px;overflow:hidden}
+section h2{margin:0;padding:13px 16px;font-size:1.05rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+section h2 span{font-size:.85rem;font-weight:500;color:var(--mut)}
+.w{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--head);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+tr:last-child td{border-bottom:0}
+td.n{color:var(--mut);width:46px}td.nm{font-weight:600}.e{color:var(--mut)}
+section.sE h2,section.sE th{background:#c4e8cb}
+section.sP h2,section.sP th{background:var(--card)}
+section.sV h2,section.sV th{background:#ffe88a}
+section.sC h2{background:var(--okbg)}section.sF h2{background:var(--head)}section.sX h2{background:var(--nobg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) section.sE h2,:root:not([data-theme="light"]) section.sE th{background:#1f4d2d}:root:not([data-theme="light"]) section.sV h2,:root:not([data-theme="light"]) section.sV th{background:#4f4316}}
+tr.dup td{color:var(--mut);background:rgba(128,128,128,.2);font-weight:400}
+tr.c td{background:var(--okbg)}tr.x td{background:var(--nobg)}
+td.a{white-space:nowrap;width:170px}
+.b{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:7px;padding:5px 10px;margin-right:4px}
+.b.yes.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.b.no.on{background:var(--no);border-color:var(--no);color:#fff}
+.bar2{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 0}.bar2 i{display:block;height:100%;background:var(--ok)}
+</style>
+</head>
+<body>
+<main>
+<h1>Moldova Europeia – Gestão de Inscrições</h1>
+<p class="sub">Confirma ou não cada inscrição. O estado fica guardado nesta página.</p>
+<div id="msg"></div>
+<div class="stats" id="stats"></div>
+<div class="tabs">
+<button class="tab on" data-v="g">Gestão</button>
+<button class="tab" data-v="r">Resumo: confirmadas e em falta</button>
+</div>
+<div class="bar" id="bar">
+<input id="q" type="search" placeholder="Pesquisar por nome ou organização…" aria-label="Pesquisar">
+<select id="f" aria-label="Filtrar por estado"><option value="">Todos os estados</option><option value="p">Por confirmar</option><option value="c">Confirmadas</option><option value="x">Não confirmadas</option></select>
+</div>
+<div id="out"></div>
+</main>
+<script>
+const DATA=[[1,"Vasile Zgardan","Universidade de Lisboa","Estudante","V"],[2,"Cristiano Zgardan","Universidade NOVA de Lisboa","Estudante","V"],[3,"Lilia Zgardan","","","P"],[4,"Victor Turcanu","Particular","","V"],[6,"Tamara Socol","Pensionar","Agricultori","P"],[7,"Sofia Budu","","","P"],[8,"Tamara Barbarasa","Colegul Moderno","Auxseliar","P"],[9,"Olesea Grosu","","","P"],[10,"Marina Ciubotaru","Asociatia Plai de Dor","Vice-Presedinte","P"],[11,"Aliona Putina","FINCONVIP INVESTIMENTOS LDA","Gerente","E"],[12,"Viorel Putina","FINCONVIP INVESTIMENTOS LDA","Gerente","E"],[13,"Marina Ciubotaru","FINCONVIP INVESTIMENTOS LDA","Agente-Viagem e Turismo","P"],[14,"Larisa Birca","FINCONVIP INVESTIMENTOS LDA","Agente-Viagem e Turismo","P"],[15,"Sergiu Senciuc","PNL Diaspora Portugalia (România)","Președintele organizației","E"],[16,"Besliu Petru","BESLIU CONSTRUÇÕES E SERVIÇOS LDA","Gerente","E"],[17,"Igor Raevschi","","","P"],[18,"Ecaterina Bostan","Radu Bostan Transportes","Gerente","E"],[19,"Radu Bostan","Radu Bostan Transportes","Sócio gerente","E"],[20,"Sergiu Ionel","Imbragas Lda","Sócio fundador","E"],[21,"Olesea Mătăsaru","","","P"],[22,"Doinita Druta","","","P"],[23,"Elena Stirbu","Asociatia Moldovenilor din Germania „Neam Conectat“ e. V.","Presedinta asociatiei","P"],[24,"Galina Ianovici","Empresa","Gerente","E"],[25,"Ala Costin","","","E"],[26,"Elena Stirbu","Asociatia Moldovenilor din Germania „Neam Conectat“ e.V.","Presedinta","P"],[27,"Francisco José dos Santos Pires","","","P"],[28,"Larisa Tcaci dos Santos Pires","","","P"],[29,"Chiriac Victoria","Miedor.fi ONG","Presedinte","P"],[30,"Sergiu Sandu","","","P"],[31,"Dorina Porcescu","","","P"],[32,"Liliana Raileanu","Grupul de initiativa din Hessen, Germania","Presedinte","P"],[33,"Liliana Luchianov","Filtrarte","Consultora/comercial","E"],[34,"Raisa Machidonschi","Fondadora do CCM","","P"],[35,"Victoria Mogildea","Bien Estar Architecture","Arquitecta","E"],[36,"Besliu Petru","Besliu Construções é Serviços Lda","Gerente","E"],[37,"Angela Zgardan","ULSAS","Médica","V"],[38,"Alina Harcevnicov","AdTech Solutions","Marketing","V"],[39,"Alexandru Ungureanu","Modestepopeia unipessoal Lda","Gerente","E"],[40,"Patrícia Rosca","","","V"],[41,"Mihaela Scolnii","","","P"],[42,"Sergiu Scolnii","","","P"],[43,"Liliana Gujea","","","P"],[44,"Sorin Jomir","Perfeito e deslumbrante Unip.","Gerente","V"],[45,"Olesea Crismaru","Sociedade de advogados António Taveira $Asociados","Advogada","E"],[46,"Dinu Crismaru","DINUCRISMAR § OLESEA LDA","Sócio gerente","E"],[47,"Patricia Roland Zgardan","","","V"],[48,"Felícia Zgardan","","","V"],[49,"Mihai Botnaru","","","P"],[50,"Rodica Slanina","Perfeito e Deslumbrante","Administrativa","E"],[51,"Dumitru Scutelnic","","","P"],[52,"Aurelia Scolnii","","","P"],[53,"Patrícia Raposo","","","P"],[54,"Simion Croitoru","","","P"],[55,"Diana Mornealo","Ilincuțe","","P"],[56,"Corina Lozovan","Instituto de Estudos Políticos, Universidade Católica Portuguesa","Investigadora em Ciência Política e Relações Internacionais","P"],[57,"Mariana Bulat","Quinta NOROC","Gerente","P"],[58,"Adriana Dobrea","Rua João de Barros Alapraia 2765-099 Estoril. Portugal","Companie de consultanta: Business development","E"],[59,"Alexandru Ungureanu","Modestepopeia Unipessoal Lda","Gerente","E"],[60,"José Francisco Cardoso Marcos","","","P"],[61,"Tabacaru Aliona","Asociația PLAI de Dor","Membru","P"],[62,"Obada Tatiana","Asociația PLAI de Dor","Membru","P"],[63,"Larisa Birca","Asociația PLAI de Dor, Portugalia","Preşedinte","P"],[64,"Angela Ceban","","","E"],[65,"Victoria Iavorschi","Plai de Dor","Participante","P"],[66,"Beatrice Birca","Associação Plai De DOR, Portugal","Membro","P"],[67,"Victoria Iavorschi","Plai de Dor","Membro","P"],[68,"Liuba Iscra","Plai de Dor","Membro","P"],[69,"Liuba Iscra","Plai de DOR","Membro","P"],[70,"Larisa Oprea","","","P"],[71,"Anatolie Turcanu","Metas Originais Lda","","E"],[72,"Patricia Neruta","","","P"],[73,"Corina Todosi","Federação Portuguesa de Futebol","Auxiliar fisioterapia e massagem desportiva","P"],[74,"Sadiq Piarali","Voltas e circuitos lda","CEO","E"],[75,"Flores e essências","Flores e essências","Responsável","P"],[76,"Roland Zgardan","Individual","Medico","V"],[77,"Berta Lino","Afinomaq","Ceo","E"],[78,"Angelo Ricardo Brito","Corrige","Sócio Gerente","E"],[79,"Ana Cristina e Almada","Menyong Song Portugal","CEO","E"],[80,"Sergiu Zaharia","Domontic Unip. LDA","Gerente","E"],[81,"Alexandru Marastoni","","Estudante","V"],[82,"Ana Carolina Macaru","","Estudante de relações internacionais","P"],[83,"Ana Carolina Macaru","","","P"],[84,"Ecaterina Bostan","Radu Bostan Transportes","Gerente","E"],[85,"Maia Quaresma","Maia Quaresma","Advogada","E"],[86,"Svetlana Macaru","","","P"],[87,"Dana Mornealo","Ilincuțe Handmade Dolls","","P"],[88,"Bernardo Manuel Malheiro da Silva Tonim","Voltas e circuitos,lda","Sócio","E"],[89,"Maria Ciobu","","","P"],[90,"Nicolae Oprea","","","P"],[91,"Vasile Gujea","Globisafira","Gerente","E"],[92,"Valeriu Ticu","Glowing Trail, Lda.","","E"],[93,"Elena Ticu","Glowing Trail, Lda.","Funcionario","P"],[94,"Gheorghe Ticu","Glowing Trail, Lda.","Sócio-Gerente","E"],[95,"Petru Slanina","","Reformado","P"],[96,"Axenia Slanina","","Reformada","P"],[97,"Maria Ciobu","","","P"],[98,"Dumitru Neruta","","","P"],[99,"Mihail Iavorschi","Plai de dor","Membru","P"],[100,"Rodica Neruta","","","P"],[101,"Irina Preda","Preda","Designer","P"],[102,"Viorica Parfeni","Empresa Cyitirama turismo","Apresentação de Turismo Cyitirama Portugal Gray Line","E"],[103,"Duarte Alves","GrupoFiltrarte","Resp. Comercial","E"],[104,"Ion Sîrbu","Andion","Antrepenor","P"],[105,"Ion Ciobanu","Empresa","Encarregado","P"],[106,"Sergio Cristali","","","P"],[107,"Alexandru Cotoman","Mr.Flash","Here te","P"],[108,"Lara Neves Silva","Enopoint","Tecnico turismo","E"],[109,"José Bernardo Cardoso Marcos","","","P"],[110,"Ludmila Lavryk","","","V"],[111,"Iurie Costin (marido de Ala Costin)","Piscinas Costin","Gerente","E"],[112,"Rahee Hajiyani","Voltas e circuitos Lda","Gestor de produto","E"],[113,"Tâmara Socol","Particular","","P"],[114,"Violeta Valentino","","","V"],[115,"Patricia Zgardan","","","V"]];
+const R=DATA.map(a=>({id:a[0],nome:a[1],org:a[2],cargo:a[3],t:a[4]}));
+const S=[{k:"E",t:"Investidores / Empresários"},{k:"P",t:"Participantes"},{k:"V",t:"Voluntários"}];
+const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+const seen={};
+R.slice().sort((a,b)=>a.id-b.id).forEach(r=>{const k=r.t+"|"+norm(r.nome);r.dup=!!seen[k];seen[k]=1});
+const cmp=(a,b)=>a.nome.localeCompare(b.nome,"pt",{sensitivity:"base"})||(b.dup-a.dup)||(a.id-b.id);
+const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dash=s=>s&&s.trim()?esc(s.trim()):'<span class="e">—</span>';
+let st={},view="g",col=null;
+const $=id=>document.getElementById(id);
+const stOf=r=>st[r.id]||"p";
+function warn(t){const m=$("msg");m.textContent=t;m.style.display=t?"block":"none"}
+
+function stats(){
+  const n={p:0,c:0,x:0};R.forEach(r=>n[stOf(r)]++);
+  $("stats").innerHTML=`<div class="st"><b>${R.length}</b><span>Inscrições</span></div><div class="st c"><b>${n.c}</b><span>Confirmadas</span></div><div class="st"><b>${n.p}</b><span>Por confirmar (em falta)</span></div><div class="st n"><b>${n.x}</b><span>Não confirmadas</span></div>`;
+}
+function head(cls,title,rows,extra){
+  return `<section class="${cls}"><h2>${title}<span>${rows.length} pessoa${rows.length===1?"":"s"}</span></h2>${extra||""}`;
+}
+function render(){
+  stats();
+  $("bar").style.display=view==="g"?"flex":"none";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
+  let h="";
+  if(view==="g"){
+    const q=$("q").value.trim().toLowerCase(),f=$("f").value;
+    for(const s of S){
+      const rows=R.filter(r=>r.t===s.k&&(!f||stOf(r)===f)&&(!q||(r.nome+" "+r.org).toLowerCase().includes(q))).sort(cmp);
+      if(!rows.length)continue;
+      const all=R.filter(r=>r.t===s.k),c=all.filter(r=>stOf(r)==="c").length;
+      h+=head("s"+s.k,s.t,rows,`<div style="padding:0 16px 10px;background:var(--card);color:var(--mut);font-size:.82rem">${c} de ${all.length} confirmadas<div class="bar2"><i style="width:${all.length?c*100/all.length:0}%"></i></div></div>`)+
+      `<div class="w"><table><thead><tr><th>#</th><th>Nome completo</th><th>Organização / Empresa</th><th>Cargo / Função</th><th>Estado</th></tr></thead><tbody>`+
+      rows.map((r,i)=>{const x=stOf(r);return `<tr class="${r.dup?"dup ":""}${x}"><td class="n">${i+1}</td><td class="nm">${esc(r.nome)}</td><td>${dash(r.org)}</td><td>${dash(r.cargo)}</td><td class="a"><button class="b yes${x==="c"?" on":""}" data-id="${r.id}" data-s="c">✓ Confirmar</button><button class="b no${x==="x"?" on":""}" data-id="${r.id}" data-s="x" title="Não confirmada">✗</button></td></tr>`}).join("")+`</tbody></table></div></section>`;
+    }
+    if(!h)h='<p class="sub">Sem resultados.</p>';
+  }else{
+    const order=k=>S.findIndex(s=>s.k===k),lab=k=>S[order(k)].t;
+    const grp=[["sC","Confirmadas","c"],["sF","Em falta (por confirmar)","p"],["sX","Não confirmadas","x"]];
+    for(const [cls,title,key] of grp){
+      const rows=R.filter(r=>stOf(r)===key).sort((a,b)=>order(a.t)-order(b.t)||cmp(a,b));
+      if(!rows.length&&key==="x")continue;
+      h+=head(cls,title,rows)+(rows.length?`<div class="w"><table><thead><tr><th>#</th><th>Nome completo</th><th>Categoria</th><th>Organização / Empresa</th><th>Cargo / Função</th></tr></thead><tbody>`+
+      rows.map((r,i)=>`<tr class="${r.dup?"dup":""}"><td class="n">${i+1}</td><td class="nm">${esc(r.nome)}</td><td>${lab(r.t)}</td><td>${dash(r.org)}</td><td>${dash(r.cargo)}</td></tr>`).join("")+`</tbody></table></div>`:'<div style="padding:14px 16px;color:var(--mut)">Ninguém nesta lista.</div>')+`</section>`;
+    }
+  }
+  $("out").innerHTML=h;
+}
+async function setState(id,s){
+  const cur=st[id];
+  const next=cur===s?null:s;
+  if(next)st[id]=next;else delete st[id];
+  render();
+  if(!col)return;
+  try{
+    const d=col.doc(String(id));
+    if(next)await d.set({s:next});else await d.delete();
+  }catch(e){warn("Não foi possível guardar esta alteração (é preciso ter permissão de edição).")}
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".b");if(b){setState(b.dataset.id,b.dataset.s);return}
+  const t=e.target.closest(".tab");if(t){view=t.dataset.v;render()}
+});
+$("q").addEventListener("input",render);$("f").addEventListener("change",render);
+render();
+(async()=>{
+  let db=null;
+  try{db=window.claude&&await claude.use("db")}catch(e){}
+  if(!db){warn("A gravação não está disponível: as alterações só ficam nesta sessão.");return}
+  col=db.collection("status");
+  const t=setTimeout(()=>warn("A carregar os estados guardados está a demorar…"),10000);
+  col.onSnapshot(snap=>{
+    clearTimeout(t);warn("");
+    st={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.s)st[d.id]=v.s});
+    render();
+  },()=>{clearTimeout(t);warn("Não foi possível ler os estados guardados.")});
+})();
+</script>
+</body>
+</html>
